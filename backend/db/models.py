@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
 from backend.db.session import Base
 
-EMBED_DIM = 1536  # must match the embedding model you use
+EMBED_DIM = 384  # must match the embedding model you use
 
 class User(Base):
     __tablename__ = "users"
