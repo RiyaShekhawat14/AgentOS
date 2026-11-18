@@ -6,3 +6,6 @@ pgvector
 pydantic
 python-dotenv
 redis
+sentence-transformers
+pypdf
+python-multipart
