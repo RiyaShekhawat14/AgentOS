@@ -9,3 +9,6 @@ redis
 sentence-transformers
 pypdf
 python-multipart
+PyJWT
+bcrypt
+email-validator
