@@ -11,6 +11,14 @@ from backend.auth.router import router as auth_router
 
 # Initialize FastAPI application
 app = FastAPI(title="AgentOS")
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Register all routers
 app.include_router(auth_router)
