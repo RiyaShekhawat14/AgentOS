@@ -25,7 +25,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       router.replace("/login");
       return;
     }
-    api("/auth/me").then(setUser).catch(() => {});
+    api<{ name: string }>("/auth/me").then(setUser).catch(() => {});
   }, [pathname, isPublic, router]);
 
   if (isPublic) return <>{children}</>;

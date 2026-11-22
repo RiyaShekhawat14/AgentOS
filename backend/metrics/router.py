@@ -19,10 +19,15 @@ def metrics(db: Session = Depends(get_db), user=Depends(get_current_user)):
     finished = done + failed
     success_rate = round(100 * done / finished, 1) if finished else 0
 
-    avg_secs = db.scalar(
-        select(func.avg(func.extract("epoch", Run.ended - Run.started)))
-        .where(mine, Run.ended.is_not(None))
-    )
+    agents = db.scalar(select(func.count(Agent.id)).where(Agent.user_id == user.id)) or 0
+
+    # Average run time, worked out here (not in SQL) so it behaves the same on every database.
+    finished_runs = db.execute(
+        select(Run.started, Run.ended).where(mine, Run.ended.is_not(None))
+        .order_by(Run.id.desc()).limit(1000)
+    ).all()
+    secs = [(e - s).total_seconds() for s, e in finished_runs if s and e]
+    avg_secs = sum(secs) / len(secs) if secs else 0
 
     tool_calls = db.scalar(
         select(func.count(Step.id)).join(Run, Run.id == Step.run_id)
@@ -48,6 +53,7 @@ def metrics(db: Session = Depends(get_db), user=Depends(get_current_user)):
     ).all()
 
     return {
+        "agents": agents,
         "tasks_run": total,
         "success_rate": success_rate,
         "avg_seconds": round(avg_secs or 0, 1),

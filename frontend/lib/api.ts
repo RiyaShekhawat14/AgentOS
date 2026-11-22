@@ -5,7 +5,10 @@ export const getToken = () =>
 export const setToken = (t: string) => localStorage.setItem("token", t);
 export const clearToken = () => localStorage.removeItem("token");
 
-export async function api<T = any>(path: string, options: RequestInit = {}): Promise<T> {
+export const errorMessage = (e: unknown): string =>
+  e instanceof Error ? e.message : "Something went wrong";
+
+export async function api<T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers);
   const token = getToken();
   if (token) headers.set("Authorization", `Bearer ${token}`);
@@ -15,7 +18,7 @@ export async function api<T = any>(path: string, options: RequestInit = {}): Pro
   const res = await fetch(`${API}${path}`, { ...options, headers });
   if (res.status === 401 && !path.startsWith("/auth/login")) {
     clearToken();
-    if (typeof window !== "undefined") window.location.href = "/login";
+    if (typeof window !== "undefined") window.location.replace("/login");
     throw new Error("Not logged in");
   }
   if (!res.ok) {

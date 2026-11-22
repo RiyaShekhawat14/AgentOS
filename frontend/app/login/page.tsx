@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { api, setToken } from "@/lib/api";
+import { api, errorMessage, setToken } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,11 +16,11 @@ export default function LoginPage() {
     setError("");
     try {
       const body = mode === "login" ? { email, password } : { email, name, password };
-      const res = await api(`/auth/${mode}`, { method: "POST", body: JSON.stringify(body) });
+      const res = await api<{ token: string }>(`/auth/${mode}`, { method: "POST", body: JSON.stringify(body) });
       setToken(res.token);
       router.replace("/dashboard");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(errorMessage(err));
     }
   }
 
