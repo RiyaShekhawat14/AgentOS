@@ -57,6 +57,7 @@ export default function AgentsPage() {
                 </div>
               </div>
               <div className="flex gap-2">
+                <Link href={`/runs/new?agent=${a.id}`} className={buttonClass()}>Run</Link>
                 <Link href={`/agents/${a.id}`} className={buttonClass("secondary")}>Edit</Link>
                 <Button variant="danger" onClick={() => remove(a)}>Delete</Button>
               </div>
