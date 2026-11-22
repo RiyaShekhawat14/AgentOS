@@ -1,0 +1,15 @@
+.git
+.github
+**/__pycache__
+**/*.pyc
+**/venv
+**/.venv
+.env
+.env.*
+!.env.example
+**/node_modules
+**/.next
+frontend/.env.local
+backend/storage
+docs
+*.md

@@ -1,3 +1,7 @@
+# Everyday development (database + redis only):
+#     docker compose -f infra/docker-compose.yml up -d
+# Whole app in containers (database, redis, backend, frontend):
+#     docker compose --env-file .env -f infra/docker-compose.yml --profile full up --build -d
 services:
   db:
     image: pgvector/pgvector:pg16
@@ -7,8 +11,45 @@ services:
       POSTGRES_DB: agentos
     ports: ["5432:5432"]
     volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agentos -d agentos"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   redis:
     image: redis:7
     ports: ["6379:6379"]
+
+  backend:
+    profiles: ["full"]
+    build:
+      context: ..
+      dockerfile: infra/backend.Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg2://agentos:agentos@db:5432/agentos
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: ${JWT_SECRET:-change-this-to-a-long-random-string}
+      # Ollama runs on your computer, not in a container
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5}
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    ports: ["8000:8000"]
+    volumes: [storage:/app/storage]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    profiles: ["full"]
+    build:
+      context: ..
+      dockerfile: infra/frontend.Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports: ["3000:3000"]
+    depends_on: [backend]
+
 volumes:
   pgdata:
+  storage:

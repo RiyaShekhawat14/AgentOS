@@ -7,8 +7,11 @@ from backend.rag.embedder import embed
 
 def extract_text(filename: str, data: bytes) -> str:
     if filename.lower().endswith(".pdf"):
-        reader = PdfReader(BytesIO(data))
-        return "\n".join(page.extract_text() or "" for page in reader.pages)
+        try:
+            reader = PdfReader(BytesIO(data))
+            return "\n".join(page.extract_text() or "" for page in reader.pages)
+        except Exception:
+            raise ValueError("Could not read this PDF (it may be damaged or password protected)")
     return data.decode("utf-8", errors="ignore")  # .txt, .csv, .md
 
 def ingest_document(db: Session, agent_id: int, filename: str, data: bytes) -> dict:
