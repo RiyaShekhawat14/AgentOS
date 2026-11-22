@@ -10,6 +10,7 @@ from backend.metrics.router import router as metrics_router
 from backend.auth.router import router as auth_router
 from backend.agents.router import router as agents_router
 from backend.tools.router import router as files_router
+from backend.approval.router import router as approval_router
 
 # Initialize FastAPI application
 app = FastAPI(title="AgentOS")
@@ -26,6 +27,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(agents_router)
 app.include_router(files_router)
+app.include_router(approval_router)
 app.include_router(rag_router)
 app.include_router(memory_router)
 app.include_router(metrics_router)
