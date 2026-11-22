@@ -33,8 +33,13 @@ Limits: 8 tool calls per run, 300 seconds per run (time spent waiting for you is
 | Tools and CSV upload API | Done (API) |
 | Permissions and approve / reject | Done (API) |
 | Run engine, runs API, live stream | Done (API) |
-| Run page (live step graph, approve buttons, result) | Next |
-| Login, knowledge (RAG), memory, dashboard, scheduler | Khushi's modules, see the pull requests for status |
+| Run page (live step graph, approve buttons, result) | Done (UI) |
+| Login and app shell | Done (API + UI) |
+| Knowledge base (RAG): upload, list, delete, test search | Done (API + UI) |
+| Memory: short and long term, viewer page | Done (API + UI) |
+| Dashboard: cards and charts | Done (API + UI) |
+| Scheduler: recurring runs | Done (API + UI) |
+| Docker for the whole app, CI, docs | Done, see `docs/` |
 
 Until the run page is built, start and watch runs from the API docs at http://localhost:8000/docs (log in with `POST /auth/login`, copy the token, press **Authorize**).
 
@@ -51,7 +56,7 @@ docker compose -f infra/docker-compose.yml up -d
 
 # 3. backend (run from the project root)
 cd backend && python -m venv venv && venv\Scripts\activate && pip install -r requirements.txt && cd ..
-python -m contracts.seed        # creates the tables, needed once
+python -m contracts.seed        # creates the tables and demo data (safe to repeat)
 uvicorn backend.main:app --reload
 
 # 4. frontend (a second terminal)
@@ -62,7 +67,7 @@ ollama pull qwen2.5
 ollama serve
 ```
 
-- App: http://localhost:3000 (click **Register** on the login page to create your account)
+- App: http://localhost:3000 (click **Register** on the login page to create your account, or log in as the demo user `demo@agentos.dev` / `demo123`)
 - API docs: http://localhost:8000/docs
 - Check that the model is ready: `GET /llm/status` in the API docs.
 
@@ -98,6 +103,18 @@ All endpoints except register and login need a login token. Each user only sees 
 | `POST /runs/{id}/steps/{step_id}/approve` or `/reject` | Answer an approval |
 | `POST /runs/{id}/stop` | Stop a run |
 | `GET /llm/status` | Is Ollama ready? |
+| `GET/POST /agents/{id}/knowledge`, `DELETE /agents/{id}/knowledge/{doc_id}`, `GET /agents/{id}/knowledge/search` | Documents the agent can read (RAG) |
+| `GET/POST /agents/{id}/memory`, `DELETE /memory/{id}` | Agent memory |
+| `GET /metrics` | Numbers for the dashboard |
+| `GET/POST /schedules`, `PATCH/DELETE /schedules/{id}`, `POST /schedules/{id}/run-now` | Recurring runs |
+
+## Run everything in Docker
+
+```bash
+docker compose --env-file .env -f infra/docker-compose.yml --profile full up --build -d
+```
+
+Starts Postgres, Redis, the backend (http://localhost:8000) and the frontend (http://localhost:3000). Ollama still runs on your own computer. More in `docs/DEPLOYMENT.md`.
 
 ## Tests
 
@@ -106,7 +123,9 @@ pip install -r backend/requirements-dev.txt
 python -m pytest backend/tests
 ```
 
-The tests use an in-memory database and a fake model, so they need no Docker and no Ollama.
+The tests use an in-memory database and a fake model, so they need no Docker and no Ollama. GitHub Actions runs them, plus the frontend lint and build, on every push and pull request.
+
+More documents: `docs/ARCHITECTURE.md` (how it fits together), `docs/API.md` (every endpoint), `docs/DEPLOYMENT.md` (Docker and CI).
 
 ## Folders
 
@@ -114,7 +133,7 @@ The tests use an in-memory database and a fake model, so they need no Docker and
 backend/   agents, tools, approval, engine (LangGraph), runs, auth, rag, memory, metrics, scheduler, tests
 frontend/  Next.js app (agents, runs, dashboard, knowledge, memory, schedule)
 contracts/ seed data shared by both of us
-infra/     docker-compose for Postgres (pgvector) and Redis
+infra/     docker-compose (Postgres + pgvector, Redis, optional backend and frontend) and Dockerfiles
 docs/      project documents
 ```
 
