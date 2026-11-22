@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import String, Text, ForeignKey, JSON, DateTime, Integer
+from sqlalchemy import String, Text, ForeignKey, JSON, DateTime, Integer, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
 from backend.db.session import Base
@@ -64,3 +64,13 @@ class Memory(Base):
     agent_id: Mapped[int] = mapped_column(ForeignKey("agents.id"))
     kind: Mapped[str] = mapped_column(String(10))  # "short" or "long"
     content: Mapped[str] = mapped_column(Text)
+
+class Schedule(Base):
+    """A recurring task: "run this task for this agent on this cron schedule"."""
+    __tablename__ = "schedules"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    agent_id: Mapped[int] = mapped_column(ForeignKey("agents.id", ondelete="CASCADE"))
+    cron: Mapped[str] = mapped_column(String(100))   # e.g. "0 9 * * mon" = Monday 09:00
+    task: Mapped[str] = mapped_column(Text)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    last_run: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)

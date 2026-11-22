@@ -13,3 +13,5 @@ PyJWT
 bcrypt
 email-validator
 langgraph
+apscheduler>=3.10,<4
+tzdata
