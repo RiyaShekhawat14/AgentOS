@@ -4,7 +4,7 @@ These are the colours, type and components the app already uses (Tailwind 4 clas
 
 ## Logo
 
-logo.svg in this folder: a dark rounded square with a blue "A" made of three connected nodes (an agent with steps). Use it on the login page, the sidebar and the slides. Keep clear space of at least a quarter of its width.
+logo.svg in this folder: a dark rounded square with a blue ring and a white play triangle (an agent running), plus an amber dot on the ring (a human approval). Use it on the login page, the sidebar and the slides. Keep clear space of at least a quarter of its width.
 
 ## Colours
 
