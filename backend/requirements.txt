@@ -12,3 +12,4 @@ python-multipart
 PyJWT
 bcrypt
 email-validator
+langgraph
