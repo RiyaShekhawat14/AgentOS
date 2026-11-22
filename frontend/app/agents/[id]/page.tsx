@@ -3,6 +3,7 @@ import { use, useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { Agent } from "@/lib/agents";
 import AgentForm from "../AgentForm";
+import { AgentFiles } from "./AgentFiles";
 
 export default function EditAgentPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -21,6 +22,7 @@ export default function EditAgentPage({ params }: { params: Promise<{ id: string
       {error && <p className="text-red-600">{error}</p>}
       {!agent && !error && <p className="text-gray-500">Loading...</p>}
       {agent && <AgentForm key={agent.id} initial={agent} />}
+      {agent && <AgentFiles agentId={agent.id} />}
     </div>
   );
 }
